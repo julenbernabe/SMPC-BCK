@@ -1,0 +1,21 @@
+sum=sfix(0)
+n=5
+m=10
+
+vector_prueba1 = sfix.Array(n)
+vector_prueba2 = sfix.Array(m)
+
+for i in range(n):
+  vector_prueba1[i] = sfix(i)
+for j in range(m):
+  vector_prueba2[j] = sfix(j)
+
+
+for i in range(n):
+  sum = sum + vector_prueba1[i]
+for j in range(m):
+  sum = sum + vector_prueba2[j]
+
+media=sum/sfix(n+m)
+print_ln('\n\nSOLUCION:\nLa media del conjunto de datos es: %s\n\n', media.reveal())
+

@@ -1,0 +1,60 @@
+#----------------------CURVA ROC---------------------
+#----Curva de característica operativa del recepto---
+
+#Grafico que muestra el rendimiento de un modelo de clasificacion
+#en todos los umbrales de clasificacion 
+
+#Esta curva representa dos parametros:
+#   Tasa de verdaderos positivos:
+#       TPR=VP/(VP+FN)
+#   Tasa de falsos positivos
+#       FPR=FP/(FP+VN)
+#siendo
+#VP: verdaderos positivos
+#FN: falsos negativos. Es positivo pero sale negativos
+#FP: falsos positivos. Es negativo y da positivo
+#VN: verdaderos negativos
+
+#La curva ROC representa TRP frente a FPR en diferentes umbrales de
+#clasificacion.
+
+#Si reduces el umbral de clasificacion, el punto de corte, clasifica 
+#mas elementos como positivos, aumenta tatno los VP como los FP.
+
+#eje x: Tasa de FP:FPR
+#eje y: Tasa de VP: TPR
+
+#Para sacar los puntos de la curva ROC, dos opciones:
+#   1- Evaluar un modelo de regresion logistica muchas veces con diferentes 
+#      umbrales de clasificacion. INEFICIENTE. NO SE HACE.
+#   2- AUC: algoritmo eficiente basado en ordenamiento. 
+
+#Otra opcion para calcular la curva ROC manualmente:
+#https://www.revista-portalesmedicos.com/revista-medica/calculo-curvas-roc-utilizando-una-hoja-calculo/
+
+#1- Creamos dos grupos, dos listas:
+#       Todos los que han sido detectados como enfermos mediante una prueba de diagnositco. P
+#       Todos los que han sido declarados sanos. N
+#2- Escribir todos los datos en la mismca columna. P_N: Biomarcador
+#   Los valores de esta lista sin repetir (no entiendo por que en su ejemplo hay repeticiones)
+#3- Ordenar la lista P_N de menor a mayor 
+#4- Creamos listas especificidad y sensibilidad.
+#       Para ello se cuenta como enfermo a los individuos con un valor de biomarcador mayor que el punto de corte. 
+#       Especificidad: (1-total de lista N menors que m)/(total de lista N)
+#                       m es el primer elemento de la lista ordenada P_N
+#       Sensibilidad: (1-total de lista P mayores que m)/(total de lista P)
+#       No son dos numeros, son dos litas. No es el total, si no el rango(?)
+#       Con esas dos columnas nuevas, especificidad y sensiblidad, se puede obtener un grafico
+#El grafico como tal habria que hacerlo fuera de SCALE-MAMBA,
+#pero se puede dar como resultado las columnas de especificidad y sensibildad. 
+#MIRAR MEJOR COMO SE SACAN ESPECIFICIDAD Y SENSIBILIDAD EN EL ENLACE 
+
+
+#-----------------AUC-------------------
+#Dos aplicaciones principales:
+#   El area bajo la curva puede ser un buen parametro para 
+#comparar dos pruebas diagnósticas, la mejor será la que mayor area cubra.
+
+#   Para determinar el mejor punto de corte donde considerar positivo o negativo.
+#Identificar el punto P para el cual la distancia del punto P al (0,1) es minima. 
+

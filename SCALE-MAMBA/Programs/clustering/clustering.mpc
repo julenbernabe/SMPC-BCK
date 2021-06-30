@@ -1,0 +1,221 @@
+#https://www.cs.us.es/~fran/curso_unia/clustering.html
+#https://www.cienciadedatos.net/documentos/37_clustering_y_heatmaps
+
+
+#Agrupar elementos de acuerdo a una medida de similitud entre ellos.
+#Medida de similitud que se puede utilizar: basasda en la correlacion de pearson.
+#   D(x,y)=1-corr(perfil(x),perfill(y))
+#   Cuando la similitud se hace en terminos de patron o forma y no desplazamiento o magnidtud se utiliza esta distancia. 
+#Dost tipos de clusterin: jerarquico o de particion.
+#   jerarquico aglomerativo: empezar con tantos clusters como indivious e ir juntando grupos segun similitud.
+#   jerarquico de division: empezar con un unico cluster y ir dividiendo clusters por disimilitud. 
+
+#···········CLUSTERING JERARQUICO AGLOMERATIVO ···········
+#Matriz de similitud, distancis entre los disintos elementos --> matriz de correlaciones
+#Cogemos los dos con menor distancia y los juntamos
+#Se vuelve a calcular matrizj
+#   Distancia al nuevo cluster: media de las distancias a los elementos que lo forman
+#Umbral de corte a posteriori para especificar numero de clusters
+
+#CON ESTO CONSEGUIRIAMOS DIVIDIR TODAS LAS VARIABLES EN CLUSTERS DE TAL MANERA QUE TODOS LOS ELEMENTOS DE UN CLUSTER SIGAN EL MISMO PATRON/TENDENCIA
+
+
+#··········CLUSTERING DE PARTICION, K-means···········
+#Input:Numero prefijado de clusters, elementos y matriz de similitudes. 
+#Agrupar los elementos en torno a elementos centrados llamados centoides.
+#Centoide: minimiza la suma de las similiutdes al resto de los elementos del cluster
+
+#Yo creo que esto no, porque hay que prefijar el numero de grupos que queremos formar y esto ya no tendría sentido. 
+#Mejor hacer clustering jerarquico aglomerativo y poner como umbral de corte la correlacion que consideremos que no es lo suficientemene alta como para estar relacionados. 
+
+
+#············OPCIONES SOBRE COEFICIENTE DE CORRELACION·············
+#Si queremos quitar el efecto de los outliers que perjudican al coeficiente de Pearson--> Jackknife correlation
+#   Cuano el estudio requiere minimizar al maximo la presencia de falsos positivos
+#   Eso sí, se incrementan los falsos negativos. 
+
+
+#············CUANDO LAS VARIABLES SON DE TIPO BINARIOS··············
+#   Dados dos datos A y B, cada uno con n atributos binarios:
+#   simple matching coefficient
+#   SMC=numero de coincidencias/numero total de atributos=(M00+M11)/(M00+M01+M10+M11)
+#  
+#   M00: numero de varaibles(?????, no sera atributo?) para las que ambas observaciones tienen valor 0
+#   ...
+#   Distancia = 1 - SMC
+#
+#   Si la coincidencia de ausencia no aporta informacion: distancia de Jaccard
+#   Ejemplo: coincidencia entre los articulos comprados en un supermercado, no nos importa los que no se han comprado. 
+#   J=M11/(M01+M10+M11)
+
+#HACER PRUEBA CON LOS DATOS QUE APARECEN AQUI:
+#https://www.cienciadedatos.net/documentos/37_clustering_y_heatmaps
+
+n=10
+X=sfix.Array(n)
+X[0]=sfix(4)
+X[1]=sfix(4.5)
+X[2]=sfix(4)
+X[3]=sfix(7.5)
+X[4]=sfix(7)
+X[5]=sfix(6)
+X[6]=sfix(5)
+X[7]=sfix(5.5)
+X[8]=sfix(5)
+X[9]=sfix(6)
+
+Z=sfix.Array(n)
+Z[0]=sfix(5)
+Z[1]=sfix(5.5)
+Z[2]=sfix(4.8)
+Z[3]=sfix(5.4)
+Z[4]=sfix(4.7)
+Z[5]=sfix(5.6)
+Z[6]=sfix(5.3)
+Z[7]=sfix(5.5)
+Z[8]=sfix(5.2)
+Z[9]=sfix(4.8)
+
+Y=sfix.Array(n)
+for i in range(n):
+  Y[i] = X[i]+sfix(4)
+
+
+X_Y_Z=sfix.Matrix(3,n)
+for i in range(n):
+    X_Y_Z[0][i]=X[i]
+for i in range(n):
+    X_Y_Z[1][i]=Y[i]
+for i in range(n):
+    X_Y_Z[2][i]=Z[i]
+
+
+medias=sfix.Array(3)
+for i in range(3):
+    suma=sfix(0)
+    for j in range(n):
+        suma=suma+X_Y_Z[i][j]
+    media=suma/sfix(n)
+    medias[i]=media
+    print_ln('\nMedias: %s',medias[i].reveal())
+
+
+desviaciones=sfix.Array(3)
+for i in range(3):
+    suma=sfix(0)
+    for j in range(n):
+        suma=suma+(X_Y_Z[i][j]-medias[i])**2
+    suma=mpc_math.sqrt(suma/sfix(n-1))
+    desviaciones[i]=suma
+    print_ln('\nDesviaciones: %s',desviaciones[i].reveal())
+
+#Hay (n*(n-1))/2 pares distintos
+#En este caso por ejemplo se guardaran asi:
+#   covarianzas=[XY,XZ,YZ]
+#Si hubiese cuatro variables X,Y,Z,R 
+#   covarianzas=[XY,XZ,XR,YZ,YR,ZR]
+
+#pares=(n*(n-1))/2
+#covarianzas=sfix.Array(pares)
+#COVARIANZAS ASÍ ESTARA BIEN PERO PARA CREAR LA MATRIZ ES UN LIO, MEJOR HACER QUE ESTO SEA
+#for i in range(3):
+#    p=i+1
+#    while p<3:
+#        suma=0
+#        for j in range(n):
+#            suma=suma+(X_Y_Z[i][j]-medias[i])*(X_Y_Z[p][j]-medias[p])
+#        suma=suma/sfix(n)
+#        covarianzas[i+p-1]=suma
+#        print_ln('\nCovarianzas: %s',covarianzas[i+p-1].reveal())
+#        p=p+1
+
+covarianzas=sfix.Matrix(3,3)
+for i in range(3):
+    for j in range(3):
+        suma=0
+        for k in range(n):
+            suma=suma+(X_Y_Z[i][k]-medias[i])*(X_Y_Z[j][k]-medias[j])
+        suma=suma/sfix(n-1)
+        covarianzas[i][j]=suma
+        print_ln('\nCovarianzas: %s',covarianzas[i][j].reveal())
+
+#matriz correlacioens
+correlaciones=sfix.Matrix(3,3)
+for i in range(3):
+    for j in range(i,3):
+        if i==j:
+            correlaciones[i][j]=sfix(1)
+        else:
+            r=covarianzas[i][j]/(desviaciones[i]*desviaciones[j])
+	    correlaciones[i][j]=r
+	    correlaciones[j][i]=r
+
+        print_ln('\nCoeficiente de correlacion: %s',correlaciones[i][j].reveal())
+
+matriz_distancias=sfix.Matrix(3,3)
+for i in range(3):
+    for j in range(i,3):
+	if i==j:
+	    matriz_distancias[i][j]=1-correlaciones[i][j]
+	else:
+	    matriz_distancias[i][j]=1-correlaciones[i][j]
+	print_ln('\nMatriz distancias: %s', matriz_distancias[i][j].reveal())
+
+#Una vez definida la matriz de distancia, se procede al clustering.
+
+
+#·······················HIERARCHICAL CLUSTERING·························
+#En este caso las observaciones son las variables
+#Al comenzar, cada variable es un cluster.
+#Se identifican los dos clusters que están más proximos en la matriz de distancias
+#Se juntan esos dos clusters
+#Se recalculan las distancias
+
+#Número de variables
+m=3  
+
+clusters=X_Y_Z
+distancias=matriz_distancias
+
+#buscamos el maximo de la matriz de distancias
+#el coeficiente de correlación de pearson coge valores de -1 a 1
+#En este caso cuando dos variables estan correlacionadas toman el valor -1 o 1
+#Por eso hay que buscar el máximo en valor absoluto
+
+#max=sfix(0)
+#para poder cambiarlo dentro del for, array o memvalue
+
+#----------------------------
+max=sfix.Array(0) 
+for i in range(len(clusters)):
+    for j in range(len(clusters)):
+        if abs(distancias[i][j])>max[0]:
+            max[0]=abs(distancias[i][j])
+            juntar1=i
+            juntar2=j
+
+print_ln("Juntar 1: %s",juntar1)
+print_ln("Juntar 2: %s",juntar2)
+print_ln("Maximo: %s",max[0].reveal())
+
+#abs no funciona con sfix
+#------------------------------
+
+max=sfix.Array(1) 
+for i in range(len(clusters)):
+    for j in range(len(clusters)):
+        if distancias[i][j]>max[0]:
+            max[0]=distancias[i][j]
+            juntar1=i
+            juntar2=j
+        elif -distancias[i][j]>max[0]:
+            max[0]=-distancias[i][j]
+            juntar1=i
+            juntar2=j
+
+print_ln("Juntar 1: %s",juntar1)
+print_ln("Juntar 2: %s",juntar2)
+print_ln("Maximo: %s",max[0].reveal())
+
+while 
+

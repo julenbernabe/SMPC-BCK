@@ -1,0 +1,180 @@
+# Copyright Tecnalia Research && Innovation
+# All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+version: '2.4'
+
+
+services:
+    #################################### IPFS ####################################
+    julen-ipfs:
+        image: ipfs/go-ipfs:v0.5.1
+        container_name: julen-ipfs
+        restart: unless-stopped
+        volumes:
+            - /opt/volumes/ipfs:/data/ipfs
+        healthcheck:
+            test: ["CMD-SHELL", "if ! nc -z -v -w5 localhost 5001 &> /dev/null; then exit 1; fi"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+        ports:
+            - 4001:4001
+            - 5001:5001
+            - 8080:8080
+        logging:
+            driver: "json-file"
+            options:
+                max-size: "50m"
+
+    julen-cluster:
+        image: ipfs/ipfs-cluster:v0.13.0
+        container_name: julen-cluster
+        restart: unless-stopped
+        command: daemon --bootstrap /ip4/127.0.0.1/tcp/9096/p2p/12D3KooWCtt2LAfaQe3hhEABSbUefRUcio6jhXC7VU6aQrkuihu7
+        environment:
+            - CLUSTER_PEERNAME=julen-cluster
+            - CLUSTER_SECRET=753273fc4e9e0375b3cfdf99f3e72744e6025834a6df6e9eb8ff7e6f3ba9bc34
+            - CLUSTER_REPLICATIONFACTORMIN=2
+            - CLUSTER_REPLICATIONFACTORMAX=4
+            - CLUSTER_IPFSHTTP_NODEMULTIADDRESS=/dns4/julen-ipfs/tcp/5001
+            - CLUSTER_RESTAPI_HTTPLISTENMULTIADDRESS=/ip4/0.0.0.0/tcp/9094
+            - CLUSTER_MONITORPINGINTERVAL=2s
+            - IPFS_CLUSTER_CONSENSUS=crdt
+        volumes:
+            - /opt/volumes/ipfs-cluster:/data/ipfs-cluster
+        ports:
+            - 9094:9094
+            - 9095:9095
+            - 9096:9096
+        depends_on:
+            julen-ipfs:
+                condition: service_healthy
+        logging:
+            driver: "json-file"
+            options:
+                max-size: "50m"
+    
+    #################################### EVENTEUM ####################################
+
+    eventeum:
+        image: eventeum/eventeum:latest
+        container_name: eventeum
+        ports:
+            - "8060:8060"
+        depends_on:
+            - mongodb
+            - kafka
+        environment:
+            SPRING_DATA_MONGODB_HOST: mongodb
+            ETHEREUM_NODE_URL: http://172.17.0.1:9545    # Aqui poner el nodo de ethereum/quorum
+            ZOOKEEPER_ADDRESS: zookeper:2181
+            KAFKA_ADDRESSES: kafka:19092
+            BROADCASTER_TYPE: "KAFKA"
+
+    mongodb:
+        image: mongo:latest
+        container_name: mongodb
+        ports:
+            - "27017:27017"
+        volumes:
+            - ./data/mongodb/data/db:/data/db
+
+    zookeeper:
+        image: confluentinc/cp-zookeeper:5.0.1-1
+        container_name: zookeeper
+        ports:
+            - "2181:2181"
+        environment:
+            zk_id: "1"
+            ZOOKEEPER_CLIENT_PORT: 2181
+
+    kafka:
+        image: confluentinc/cp-kafka:5.0.1-1
+        container_name: kafka
+        ports:
+            - '9092:9092'
+            - '19092:19092'
+        depends_on:
+            - zookeeper
+        environment:
+        # For more details see See https://rmoff.net/2018/08/02/kafka-listeners-explained/
+            KAFKA_LISTENERS: LISTENER_DOCKER_INTERNAL://kafka:19092,LISTENER_DOCKER_EXTERNAL://kafka:9092
+            KAFKA_ADVERTISED_LISTENERS: LISTENER_DOCKER_INTERNAL://kafka:19092,LISTENER_DOCKER_EXTERNAL://localhost:9092
+            KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: LISTENER_DOCKER_INTERNAL:PLAINTEXT,LISTENER_DOCKER_EXTERNAL:PLAINTEXT
+            KAFKA_INTER_BROKER_LISTENER_NAME: LISTENER_DOCKER_INTERNAL
+            KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"     
+            KAFKA_BROKER_ID: 1
+            KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    
+    #################################### SCALE-MAMBA ####################################
+
+    player0:
+        image: 'scalemamba:latest'
+        container_name: player0
+        tty: true
+        working_dir: /root/SCALE-MAMBA/client
+        ports:
+            - '6001:5001'
+        volumes:
+            - './data-scientist-eth-client:/root/SCALE-MAMBA/client'
+            - './SCALE-MAMBA:/root/SCALE-MAMBA'
+        
+    player1:
+        image: 'scalemamba:latest'
+        container_name: player1
+        tty: true
+        working_dir: /root/SCALE-MAMBA/client
+        ports:
+            - '6002:5001'
+        volumes:
+            - './data-owner-eth-client:/root/SCALE-MAMBA/client'
+            - './SCALE-MAMBA/Programs:/root/SCALE-MAMBA/Programs:rw'
+            - './SCALE-MAMBA/Cert-Store:/root/SCALE-MAMBA/Cert-Store:rw'
+            - './SCALE-MAMBA/Data:/root/SCALE-MAMBA/Data:rw'
+            - './SCALE-MAMBA/src:/root/SCALE-MAMBA/src'
+
+    player2:
+        image: 'scalemamba:latest'
+        container_name: player2
+        tty: true
+        working_dir: /root/SCALE-MAMBA/client
+        ports:
+            - '6003:5001'
+        volumes:
+            - './data-owner-eth-client:/root/SCALE-MAMBA/client'
+            - './SCALE-MAMBA/Programs:/root/SCALE-MAMBA/Programs:rw'
+            - './SCALE-MAMBA/Cert-Store:/root/SCALE-MAMBA/Cert-Store:rw'
+            - './SCALE-MAMBA/Data:/root/SCALE-MAMBA/Data:rw'
+            - './SCALE-MAMBA/src:/root/SCALE-MAMBA/src'
+
+    player3:
+        image: 'scalemamba:latest'
+        container_name: player3
+        tty: true
+        working_dir: /root/SCALE-MAMBA/client
+        ports:
+            - '6004:5001'
+        volumes:
+            - './data-owner-eth-client:/root/SCALE-MAMBA/client'
+            - './SCALE-MAMBA/Programs:/root/SCALE-MAMBA/Programs:rw'
+            - './SCALE-MAMBA/Cert-Store:/root/SCALE-MAMBA/Cert-Store:rw'
+            - './SCALE-MAMBA/Data:/root/SCALE-MAMBA/Data:rw'
+            - './SCALE-MAMBA/src:/root/SCALE-MAMBA/src'
+
+
+#################################### CONFIGURATION ####################################
+
+volumes:
+    data:
+        driver: local
+
+
+networks:
+    default:
+        driver: bridge
+        ipam:
+            driver: default
+            config:
+                - subnet: 192.168.130.1/24

@@ -1,0 +1,47 @@
+#------------------PROBLEMAS PRINCIPALES-----------------
+
+#-----------------------------------------------------------------------
+
+# 1- Los sfix.Array de MAMBA en realidad yo creo que no son dinamicos 
+
+#-----------------------------------------------------------------------
+valores_unicos=sfix.Array(2)
+valores_unicos[0]=sfix(1)
+valores_unicos[1]=sfix(2)
+
+n=len(valores_unicos)
+@for_range(n+1)
+def setValores_unicos(j):
+  if_then(j==n)
+  valores_unicos[j]=3
+  end_if()
+  print_ln('Aqui si: %s',valores_unicos[j].reveal())
+  
+
+#print_ln('Aqui afuera no: %s',valores_unicos[2].reveal())
+
+@for_range(len(valores_unicos))
+def range_body(i):
+    elemento=valores_unicos[i]
+    print_ln('Aqui tampoco: %s',elemento.reveal())
+
+#------------------------------------------------------------
+
+# 2. Intentar rellenar una lista de python en un if de mamba:
+
+#-------------------------------------------------------------
+lista=[]
+for i in range(5):
+  @if_e (i%2==0)
+  def block():
+    print_ln('es par')
+    lista.append(i)
+  @else_
+  def block():
+    print_ln('nada')
+
+for i in range(len(lista)):
+  print_ln('%s',lista[i])
+
+#El if lo hace bien, porque lo de 'es par' se imprime bien
+#Pero la lista de python no se rellena bien 

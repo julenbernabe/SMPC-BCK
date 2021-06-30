@@ -1,0 +1,2 @@
+mkdir Data
+make progs

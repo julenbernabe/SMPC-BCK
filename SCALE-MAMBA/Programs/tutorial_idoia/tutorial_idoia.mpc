@@ -1,0 +1,152 @@
+
+#   1- Imrpimir float():
+#      convert_to_float
+#      print_ieee_float
+
+r0=convert_to_float("3.125")
+print_ieee_float(r0) #3.125
+print_ln("")
+print_int(r0) #4614219293217783808
+print_ln("")
+
+r1=convert_to_float("1.25")
+print_ieee_float(r1) #1.25
+print_ln("")
+
+r2=convert_to_float("-6.535353")
+print_ieee_float(r2) #-6.5353529999999997
+print_ln("")
+
+r3=convert_to_float("199.3231")
+print_ieee_float(r3) #199.32310000000001
+print_ln("")
+
+
+#   2- Para medir el tiempo:
+#      start_timer(1)
+#      ...
+#      stop_timer(1)
+
+
+#   3- Cosas relacionadas con input y output y a quien imprimirselo:
+#      IO_demo.mpc
+
+
+#   4- Funciones MAMBA:
+#      @function_block
+#      def f():
+
+
+#   5- Para enviar c(un sint por ejemplo)  al player 1:
+#      c.reveal_to(1)
+
+
+#   6- Conversiones entre sregint y sint
+a= 5424
+
+sreg_a = sregint(a)
+sint_a = sint(a)
+
+print_ln("Converting: sregint to sint");
+sia=sint(sreg_a)
+ia=sia.reveal()
+print_reg(ia)
+print_ln("")
+
+print_ln("Converting: sint to sregint");
+sc=sregint(sint_a)
+cc=sc.reveal()
+print_int(cc)
+print_ln("")
+
+#con el reveal, mirar sregint_tests.mpc
+
+#   7- Abortar:
+print_ln("Every one enter a value (these MUST be the same, otherwise an abort will occur)")
+d=cint.public_input()
+
+if_then(d)
+crash()
+else_then()
+crash()
+end_if()
+
+
+#   8- Listas de python como una especie de memvalues:
+#   load_int_to_secret_vector(vector)
+#   Loads a list of integers vector into a vectorized sint and operates on the vector
+# as in a single instance (vectorized instructions).
+
+A= [1, 2, 3]
+SA= load_int_to_secret(A)
+print_ln("Values from A: %s", SA)# the output is 123.
+
+#   9-  Store in mem address
+
+#   x.store_in_mem(address):
+#       Stores registerxinto a given address of the appropriate
+#       memory type.  This basically implies it can be later retrievedby aload_meminstruction.
+#       Memory addresses are decided by the user and are stored by the compiler on SCALE.
+
+#   load_secret_mem(address) o load_clear_mem(address):
+#       Returns the value stored in memory address of the according type. The value had to be previously
+#       stored on SCALE. Memory in this context refers to a data-storage from SCALE and not physical memory.
+#       Users select a memory address when storing data, and the same address needs to be used to extract it.
+
+#   x.load_mem(address):
+#       Loads  the  value  stored  in  memoryaddressto  the  register.   
+#       The  address  is  selected  during  the  invocation  of  astore_in_memcall
+
+#   10 - Imprimir un comipile error:
+#   raise CompilerError('Inconsistent lengths to compute_intersection')
+
+
+
+#   10-  Comparaciones entre valores secretos:
+#ESTO NO FUNCIONA:
+a=sint(52)
+b=sint(-26)
+c=sint(52)
+respuesta= a==b
+print_ln('%s',respuesta.reveal())
+if (respuesta.reveal()==1):
+	print_ln('Son iguales')
+else:
+	print_ln('No son iguales')
+
+#ESTO TAMPOCO VA A FUNCIONAR PORQUE EL IF DE PYTHON SE EJECUTA AT COMPILE TIME CUANDO EL VALOR NO ES CONOCIDO TODAVIA
+a=sint(52)
+b=sint(-26)
+if ((a==b).reveal()):
+	print_ln('Son iguales')
+else:
+	print_ln('No son iguales')
+
+
+#HAY QUE HACERLO ASÍ:
+#Si nos da igual desvelar el resultado:
+#   @if_e
+
+a=sint(52)
+b=sint(-26)
+@if_e((a==b).reveal()==1)
+def block():
+   print_ln("Son iguales")
+@else_
+def block():
+   print_ln("No son iguales")
+
+#Si no queremos desvelar el resultado:
+#   util.if_else()
+
+
+#	11- Descomponer sfloat:
+#Crear un script con esto, pero entonces ya deja de ser secreto 
+a=cfloat(-.45)
+print_ln('p=%s',a.p)
+print_ln('s=%s',a.s)
+print_ln('v=%s',a.v)
+print_ln('z=%s',a.z)
+
+
+

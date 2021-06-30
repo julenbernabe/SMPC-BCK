@@ -1,0 +1,95 @@
+##--------------------RANDOM FOREST------------------
+#----------Tecnica de aprendizaje automatico---------
+
+#Aprendizaje automatico supervisado. 
+
+#Limitaciones arboles decision: los arboles de decision tienen tendencia de sobre-ajustar(overfit)
+#              aprenden muy bien los datos de entrenamiento, pero su generalizacion no es tan buena
+#              para mejorar eso se deben combinar varios arboles 
+
+#Random Forest: conjunto de arboles de decision combinados con bagging. 
+#               Al usar bagging distintos arboles ven distintas porciones de los datos.
+#               Ningun arbol ve todos los datos de entrenamiento#
+#               Cada arbol se entrena con distintas muestras de datos.
+#               Al combinar sus resultados unos errores se compensan con otros 
+
+#Para combinar las predicciones: 
+#       PROBLEMAS DE CLASIFICACION: Combinar los resultados de los árboles de decisión usando soft-voting(voto suave)
+#                                   Se le da más importancia a los resultados en los que los arboles esten muy seguros
+#       PROBLEMAS DE REGRESION: Tomando su media aritmetica. 
+
+#DESVENTAJAS: aunque se pueda utilizar para ambos, no es mas adecuado para regresion (????)
+
+#Para que si sirve y para que no:
+#   SI: Predecir la enfermedad de un paciente tomando en cuenta los sintomas que presenta. 
+#       Con este algoritmo se puede determinar la enfermedad de una persona enferma de acuerdo a los sintomas que presenta.
+#   NO: Predecir el precio de una accion de la bolsa de valores, tomando en cuanta los datos historicos. 
+#       Con este algoritmo no se puede predecir el valor de una accion de la bolsa ya que para esto se 
+#       requiere un algoritmo de regresion y este es un algoritmo de clasificación.
+
+#APLICACION PARA ANTOLIN:
+#       Predecir si una maquina gotea tomando en cuenta los sintomas(las otras caracteristicas) que presenta.
+#       Es decir, comparamos todas las variables con la de goteo. Goteo igual hay que ponerlo como: goteo si o no. 
+
+#Librerias de python para machine learning:
+#       scikit-learn
+#
+
+
+#Contiene un gran numero de arboles de deciones en varios datasets
+#En vez de utilizar un unico arbol de decision, coge la prediccion de cada arbol
+#y se basa en la mayoria de los votos de prediccion y predice el output final. 
+
+
+#-------FUNCIONAMIENTO-----------
+#https://www.javatpoint.com/machine-learning-random-forest-algorithm
+
+# Training Data 1       Training Data 2  ...   Training Data n
+
+# Decision Tree 1       Decision Tree 2  ...   Decision Tree n
+
+#                      Voting(averaging)
+
+#                         Prediction
+
+
+#Suposiciones que debemos hacer para aplicar el Random Forest:
+#   1- Debe haber algunos valores reales en la variable característica del conjunto de datos para que el clasificador 
+#      pueda predecir resultados precisos en lugar de un resultado adivinado. 
+#   2- Las predicciones para cada arbol deben tener correlaciones muy bajas.
+
+#DOS FASES:
+#   1- Crear el random fores combinando N arboles de decision
+#   2- Realizar predicciones para cada arbol creado en la primera fase.
+
+#PASOS:
+#   1- Elegir K puntos random del training set
+#   2- Construir los arboles de decisiones asociasdo a los puntos seleccionados
+#   3- Elegir el numero N de arboles de decision que se quieren construir
+#   4- Repetir los pasos 1 y 2
+#   5- Para puntos nuevos, encontrar la prediccion para cada arbol de decision y
+#      asignar los puntos nuevos a la categoria que gane la mayoria d elos votos.
+
+
+
+#------------PREPROCESAMIENTO DE DATOS--------------
+
+#La parte de leer el csv y guardarlo en X e Y habria que ver como hacerlo
+#Depende de en que forma se den los datos
+
+#Tampoco se si tiene mucho sentido hacerlo cada uno por su parte antes
+
+#La parte de normalizar los datos si que creo que es algo que podria realizarj
+#cada una de las partes individualmente por separado. 
+
+
+#OTRA IDEA PARA EL RANDOM FOREST !!!!!!!!!
+
+#Se supone que hay que partir los datos y hacer varios arboles de decisiones
+#Igual es mas facil paratir los datos fuera del programa
+#En si la idea es primero juntar todos los datos (imagina que tenemos tres participantes)
+#y luego partirlo (en 10 cachos por ejemplo)
+#Peron no veo mucha diferencia entre hacer eso o partir en 10 cachos los datos de cada 
+#parte y luego juntar cada uno de las 10 cachos de las tres partes.
+
+#Creo que igual es mas facil la segunda opcion. 

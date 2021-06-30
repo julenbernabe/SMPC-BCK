@@ -1,0 +1,22 @@
+a = list()
+a.append(sfloat(52.3675))
+a.append(sfloat(-26.2143))
+a.append(sfloat(9.7543))
+a.append(sfloat(-488.5678))
+
+#print_ln('\n\nSOLUCION:\na[0] antes era %s\n\n', a[0].reveal())
+#print_ln('\n\nSOLUCION:\na[1] antes era  %s\n\n', a[1].reveal())
+#print_ln('\n\nSOLUCION:\na[2] antes era %s\n\n', a[2].reveal())
+#print_ln('\n\nSOLUCION:\na[3] antes era  %s\n\n', a[3].reveal())
+
+datos_ordenados=sort(a)
+n=len(datos_ordenados)
+medio=(n-1)//2
+if n%2==0:
+	mediana=(datos_ordenados[medio] + datos_ordenados[medio+1]) / sfloat(2)
+
+else:
+	mediana=datos_ordenados[medio]
+
+
+print_ln('\n\nSOLUCION:\nLa mediana de los datos es: %s\n\n', mediana.reveal())

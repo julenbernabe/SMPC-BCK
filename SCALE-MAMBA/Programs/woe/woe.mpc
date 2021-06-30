@@ -1,0 +1,14 @@
+#https://www.listendata.com/2015/03/weight-of-evidence-woe-and-information.html#Steps-of-Calculating-WOE
+
+
+#VARIABLES CONTINUAS
+#1- Dividir los datos en 10 partes o menos.
+#   En general se cogen entre 10 o 20 grupos
+#   Cada grupo deberia contener un 5% de los casos aproximadamente
+#2- Calular el numero de eventos y no eventos en cada grupo
+#3- Calcular el porcentaje de eventos y de no evento de cada grupo
+#4- WOE= lg(%eventos/%no eventos)
+
+#VARIABLES CATEGORICAS
+#Desde el paso 2
+

@@ -1,0 +1,142 @@
+#El siguiente programa devuelve, a partir de los datos introducidos como input, si dos variables X e Y son
+#independientes o no. Para estudiar dicha dependencia existen tres formas de hacerlo: la prueba de chi-cuadrado,
+#el coeficiente C de Pearson y la V de Cramer.
+
+#Prueba de chi cuadrado para proporciones de grupos independientes.
+#Puede utilizrse para verificar si existe diferencis entre proporciones de dos grupos
+#independientes o puede asumirse como una prueba de independencia o asociacion entre dos variables
+
+#Se basa en la suma de todas las diferencias entre las frecuencias observadas 
+#de una variable y las frecuencias teoricas o esperadas de las mismas
+
+#1- Crear tabla de contingencia(f0). Dos variables cualitativas.Factor
+#2- Formular la hipotesis:
+#       H0: No hay diferencia de X en relacion al tipo de Y
+#       H1: La Y influye en la X
+#3- Calcular las frecuencias esperadas o teoricas(ft) 
+#4- Calcular el grado de libertad: (n-1)*(m-1)
+#       Donde n es el numero de filas y m el numero de columnas
+#5- x**2=sumatorio (f0-ft)**2/ft
+
+#Los coeficientes C y V son valores que dependen directamente del estadistico chi-cuadrado, y son valores
+#que se encuentran en el intervalo [0,1]. A partir de ellos, es posible deducir la independencia de las
+#variables X e Y: si C o V son 0, entonces las variables son totalmente independientes. En los otros casos,
+#existe correlacion entre X e Y, siendo estas variables totalmente dependientes si los coeficientes C y V 
+#son 1 o valores muy cercanos a 1.
+
+
+#Lo primero de todo, creamos la tabla de contingencia. La idea es que los datos esten ordenados en el documento
+#de texto, de tal manera que, si A=(a_ij) es la tabla de contingencia, los primeros elementos hagan referencia al
+#elemento a_00, los segundos al a_01,...., y los ultimos al a_n1n2. Notemos que n1 sera el numero de filas y que
+#n2 sera el numero de columnas. Por ejemplo, si se ha hecho una encuesta en distintas empresas a los dos tipos de 
+#empleados que hay en ellas (empresario y obrero) sobre el tipo de coche que tienen (entre dos opciones: sedan y 
+#familiar), entonces se tienen 2 filas y dos columnas:
+
+#           Obrero con sedan: a_00
+#           Obrero con familiar: a_01
+#           Empresario con sedan: a_10
+#           Empresario con familiar: a_11
+
+n1 = 2    #filas
+n2 = 2    #columnas
+n = n1 + n2
+
+#Creacion de la tabla. La tabla tiene que tener tantas filas como tipos de trabajadores en la empresa,
+#y tantas columnas como tipos de coches se hayan recogido en la encuesta. En nuestro caso, 2x2.
+
+tabla = sfix.Matrix(n1,n2)
+
+total = sfix.Array(1)
+total[0] = sfix(0)
+
+@for_range(n1)
+def setfila(i):
+    @for_range(n2)
+    def setcolumna(j):
+    #Teniendo en cuenta como hemos introducido los datos en los documentos de texto, podemos cargarlos
+    #directamente en la matriz de manera ordenada.
+        tabla[i][j] = sfix.load_sint(sint.get_private_input_from(0)) + sfix.load_sint(sint.get_private_input_from(1)) + sfix.load_sint(sint.get_private_input_from(2))
+        total[0] = total[0] + tabla[i][j]
+
+#Hallamos ahora las sumas por filas y columnas. Guardamos en SC las sumas por columnas, y en SF las sumas por
+#filas:
+
+SF = sfix.Array(n1) 
+SC = sfix.Array(n2)
+
+@for_range(n1)
+def setfila(i):
+  @for_range(n2)
+  def setcolumna(j):
+    SF[i] = SF[i] + tabla[i][j]
+    SC[j] = SC[j] + tabla[i][j]
+
+#Calculamos el coeficiente Chi-cuadrado en X. Este coeficiente recorre todos los elementos de la tabla, y calcula 
+#un valor relacionado con dicho elemento y la suma de su fila y columna. Por tanto, necesitaremos de nuevo hacer
+#dos ciclos for:
+
+X = sfix.Array(1)
+X[0] = sfix(0)
+@for_range(n1)
+def setfila(i):
+  @for_range(n2)
+  def setcol(j):
+    S = SF[i] * SC[j] / total[0]
+    X[0] = X[0] + (tabla[i][j] - S)*(tabla[i][j] - S) / S
+
+#Ahora calculamos el coeficiente de contingencia C de Pearson. Para hallarlo, necesitaremos calcular
+#una raiz, asi que lo primero sera importar el paquete math
+
+import math
+
+C = mpc_math.sqrt(X[0] / (X[0] + total[0]))
+
+#Nota: Si C=0, entonces las variables X e Y son independientes. Si C no es 0, entonces hay dependencia. Ver el
+#contraste de hipotesis mas arriba.
+#Por ultimo, calculamos la V de Cramer, para la que necesitamos calcular  min=Min(n1,n2)-1. Las siguientes lineas se
+#encargan de ello:
+
+n1s = sfix(n1)
+n2s = sfix(n2)
+min = sfix.Array(1)
+min[0] = sfix(0)
+@if_e((n1 < n2)==1)
+def block():
+  min[0] = n1 - 1
+@else_
+def block():
+  min[0]= n2 - 1
+
+#V de Cramer:
+
+V = mpc_math.sqrt(X[0] / (total[0] * min[0]))
+
+@if_e((C==0).reveal()==1)
+def block():
+  print_ln('\n\nSOLUCION:\n\nEl coeficiente de contingencia C de Pearson para la muestra introducida es: %s,', C.reveal())
+  print_ln('el valor del coeficiente chi-cuadrado es: %s', X[0].reveal())
+  print_ln('y el valor de la V de Cramer es: %s', V.reveal())
+  print_ln('\n\nLas variables introducidas son independientes.\n\n')
+@else_
+def block():
+  print_ln('\n\nSOLUCION:\n\nEl coeficiente de contingencia C de Pearson para la muestra introducida es: %s,', C.reveal())
+  print_ln('el valor del coeficiente chi-cuadrado es: %s', X[0].reveal())
+  print_ln('y el valor de la V de Cramer es: %s', V.reveal())
+  print_ln('\n\nExiste dependencia entre las variables.\n\n')
+
+#FALTA HACER LOS CONTRASTES DE HIPOTESIS. SOLO HE PUESTO LO QUE PASA CON EL COEFICIENTE DE CONTINGENCIA. PARA 
+<<<<<<< HEAD
+#HACER BIEN EL CONTRASTE DE HIPOTESIS DE CHI-CUADRADO HAY QUE CALCULAR S_0 Y S_1 CON alpha = 0.05.
+=======
+#HACER BIEN EL CONTRASTE DE HIPOTESIS DE CHI-CUADRADO HAY QUE CALCULAR S_0 Y S_1 CON alpha = 0.05.
+
+#-----------Idoia---------------:
+# CHI CUADRADO
+#Ejemplo: https://cedepir.es/blog/ejemplo-aplicacion-chi-cuadrado-prueba-independencia/
+#Otro: https://www.slideshare.net/merysunny/ejercicio-ejemplo-de-chi-cuadrado
+#Otro: https://modulodeestadistica.wordpress.com/prueba-chi-cuadrada-para-proporciones-de-grupos-independientes/
+
+# V DE CRAMER 
+#https://sites.google.com/site/tecnicasdeinvestigaciond38/estadisticas-no-parametricas/3-6-coeficiente-v-de-cramer
+
+>>>>>>> develop

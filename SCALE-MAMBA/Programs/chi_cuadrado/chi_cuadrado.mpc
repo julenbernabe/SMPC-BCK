@@ -1,0 +1,20 @@
+#Ejemplo: https://cedepir.es/blog/ejemplo-aplicacion-chi-cuadrado-prueba-independencia/
+#Otro: https://www.slideshare.net/merysunny/ejercicio-ejemplo-de-chi-cuadrado
+#Otro: https://modulodeestadistica.wordpress.com/prueba-chi-cuadrada-para-proporciones-de-grupos-independientes/
+
+#Prueba de chi cuadrado para proporciones de grupos independientes.
+#Puede utilizrse para verificar si existe diferencis entre proporciones de dos grupos
+#independientes o puede asumirse como una prueba de independencia o asociacion entre dos variables
+
+#Se basa en la suma de todas las diferencias entre las frecuencias observadas 
+#de una variable y las frecuencias teoricas o esperadas de las mismas
+
+#1- Crear tabla de contingencia(f0). Dos variables cualitativas.Factor
+#2- Formular la hipotesis:
+#       H0: No hay diferencia de X en relacion al tipo de Y
+#       H1: La Y influye en la X
+#3- Calcular las frecuencias esperadas o teoricas(ft) 
+#4- Calcular el grado de libertad: (n-1)*(m-1)
+#       Donde n es el numero de filas y m el numero de columnas
+#5- x**2=sumatorio (f0-ft)**2/ft
+

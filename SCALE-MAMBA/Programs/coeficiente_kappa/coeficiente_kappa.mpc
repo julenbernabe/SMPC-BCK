@@ -1,0 +1,115 @@
+#-----------COEFICIENTE KAPPA DE COHEN--------------
+
+#Medida estadisitica que ajusta el efecto del azar en la proporcion
+#de la concordancia observada para elementos cualitativos(variables categoricas)
+
+#Los evaluadores se seleccionan especificamente y son fijos. 
+
+#En general, se considera una medida mas firme que el porcentaje de 
+#concordancia, porque tiene en cuenta el acuerdo que ocurre por azar. 
+#Eso dicen algunos, pero aun asi no parece algo muy firme, opiniones contrarias.
+#Mirar mas sobres su fiabilidad. 
+
+#Mide el acuerdo entre dos observadores al clasificar N elementos en C categorias
+
+#k=(Pr(a)-Pr(e))/(1-Pr(e))
+#   Pr(a): el acuerdo observado relativo entre los observadores
+#   Pr(e): la probabilidad hipotetica de acuerdo por azar
+#           utilizando los datos observados para calcular las probabilidades 
+#           de que cada observador clasifique aleatoriamente cada categoria.
+
+#-1 a 1
+#k=1 --> Los observadores estan completamente de acuerdo.
+#k=0 --> Si no hay acuerdo entre los observadores distinito al que cabria
+#        esperar por azar , segun lo definido por Pr(e).
+#k<0 --> La concordancia es mas debil que lo esperado en virtud de las probabilidades (eso casi nunca sucede)
+#Un valor de kappa al menos 0.75 concordancia adecuada, pero se prefieren valores mas grandes como 0.9
+
+#Solo sirve para dos observadores
+
+#EJEMPLO: https://es.wikipedia.org/wiki/Coeficiente_kappa_de_Cohen
+#Se tiene un grupo de 50 personas que presentan solicitud de subvencion
+#En este caso los elementos a clasificicar N=50
+#              las categorias C=2. "Subención sí" o "Subención no"
+#Se genera una tabla:
+#           B
+#           Si  No
+#  A   Si   20   5
+#      No   10  15
+
+#Los elementos en la diagonal representan el numero de solicitudes en los que hay concordancia.
+#Los otros dos elementos representant la discordancia
+
+#En este caso para aplicarlo al multiparte:
+#   Parte 1: Evaluador A --> una lista con cada id de solicitud y su correspondiente si,no
+#   Parte 2: Evaluador B --> una lista con cada id de solicitud y su correspondiente si, no
+#Pasar esos datos al formato tabla. 
+#Posibles dificultades: 
+#   - si los datos no vienen ordenados.
+#   - En cualquier otro lenguaje de programacion crear un diccionario
+#       {id1:"si",id2:"no",....}
+#   - No se me ocurre una forma de crear una especie de diccionario en SCALE-MAMBA
+#   - Alternativa: pedir a cada observador que te de los datos en un determinado orden
+#                  ofrecerle un programa aparte para que los ordene y nos de los datos como nos interesa
+#
+
+#Teniendo una lista ordenada con si(1) y no(0) para a y b
+#Con un for ir mirando si la lista de ambos coincide
+#   if (a[i]=1):
+#       A_si=A_si+1
+#       if (b[i]=1):
+#           num_de_si=num_de_si+1
+#           B_si=B_si+1
+#       else:
+#           B_no=B_no+1
+#           A_si_B_no=A_si_B_no+1
+#   else:
+#       A_no=A_no+1
+#       if (b[i]=1):
+#           B_si=B_si+1
+#           A_no_B_si=A_no_B_si+1
+#       else:
+#           B_no=B_no+1
+#           num_de_no=num_de_no+1
+
+#Porcentaje de acuerdo observado:
+N=length(A)=length(B)
+Pr_a=(num_de_si+num_de_no)/N
+
+#Para calcular Pr_e, la probabilidad de que el acuerdo se deba al azar
+#A diciendo si:
+probabilidad_A=A_si/N
+#B diciendo sí
+probabilidad_B=B_si/N
+
+#probabilidad de que ambos digan si al azar:
+azar_si=probabilidad_A*probabilidad_B
+#Probabilidad de que ambos digan si y no al azar
+azar_no=(1-probabilidad_A)*(1-probabilidad_B)
+
+Pr_e=azar_si+azar_no
+
+k=(Pr_a-Pr_e)/(1-Pr_e)
+
+#----------COEFICIENTE KAPPA DE FLEISS----------------
+#Cuando hay mas de dos obsevadores --> kappa de Fleiss
+#En realidad es una generalizacin para multiples observadores del estadístico pi de Scott
+#Presupone que los evaluadores se seleccionan aleatoriamente de un grupo de evaluadores disponibles
+
+
+
+
+
+
+
+
+#---------Utilizar estdistico Kappa o uno de los coeficientes de Kendall-----------
+
+#   -   Si las clasificaciones son nominales: verdadero / falso, bueno / malo --- > KAPPA
+#   -   Si son odinales (en base a una escala); ademas de los KAPPA, utilizar el coeficiente de concordancia de KENDALL
+
+# Kappa: concordancia absoluta entre las clasificaciones.
+#       Tratan todas las calificaciones erroneas de igual manera
+# Kendall: asociacion entre las clasificaciones
+#       Consideran que las consecuencias de clasfiicar erroneamente un objeto perfecto(clasificacion 5)
+#       como malo (clasificacion 1) son mas graves que clasfiicarlo como muy bueno (clasificacion 4)

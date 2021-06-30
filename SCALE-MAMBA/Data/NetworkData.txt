@@ -1,0 +1,7 @@
+RootCA.crt
+3
+0 192.168.130.5 player0.crt player0@example.com
+1 192.168.130.7 player1.crt player1@example.com
+2 192.168.130.6 player2.crt player2@example.com
+0
+0

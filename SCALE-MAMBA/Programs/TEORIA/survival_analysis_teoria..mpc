@@ -1,0 +1,143 @@
+sum=sfix(0)
+n=17482
+
+#Las n primeras corresponden al tiempo
+tiempo = sfix.Array(n)
+#Las n ultimas corresponden al goteo
+goteo = sfix.Array(n)
+
+
+@for_range(n)
+def setTiempo(i):
+  tiempo[i] = sfix.load_sint(sint.get_private_input_from(0))
+
+@for_range(n,2*n)
+def setGoteo(i):
+  goteo[i-n] = sfix.load_sint(sint.get_private_input_from(0))
+
+
+
+#CALCULAR TIEMPO MEDIO ENTRE FALLAS:
+
+#TT: tiempo total
+TT=tiempo[n-1]-tiempo[0]
+
+
+#NOT: tiempo no operacional
+
+#F: número de fallas
+NOT=sfix(0)
+fallas=sfix(0)
+start=-1
+for i in range(n):
+  if goteo[i]!=0:
+    fallas=fallas+1
+    start=i
+  if goteo[i]==0 and start!=-1:
+    NOT=NOT+(tiempo[i]-tiempo[start])
+    start=-1
+
+fallas=sfix.Array(1)
+@for_range(n)
+def range_body(i):
+  @if_e((goteo[i]==0).reveal()==1)
+  def block():
+      fallas[0]=fallas[0]
+  @else_
+  def block():
+      fallas[0]=fallas[0]+1
+
+print_ln('Numero de fallas es: %s', fallas[0].reveal())
+
+
+
+#-------------------------------------------------------
+NOT=sfix.Array(1)
+fallas=sfix.Array(1)
+start=sfix.Array(1)
+start[0]=sfix(-1)
+
+@for_range(n)
+def range_body(i):
+  print_ln('Goteo[i] es %s',goteo[i].reveal())
+  print_ln('start es %s',start[0].reveal())
+  #si goteo no es 0
+  @if_e((goteo[i]==0).reveal()==0)
+  def block():
+      fallas[0]=fallas[0]+1
+      #Si goteo es -1 es porque es la primera vez que no es cero  y hay que empezar a contar
+      @if_e((start[0]==-1).reveal()==1)
+      def block():
+        start[0]=i
+      #si goteo no es -1 es porque ya se ha empezado a contar
+      @else_
+      def block():
+        start[0]=start[0]
+  #Si goteo es cero
+  @else_
+  def block():
+      #Si start es distinto de -1 sumamos lo que llevaba de antes
+      @if_e((start[0]==-1).reveal()==0)
+      def block():
+          print_ln('hola %s',start[0].reveal())
+          numero=start[0] 
+          #dice que numero no es un numero entero si no un compiler.types.sfix
+          #expeceted an integer-valued
+          NOT[0]=NOT[0]+(tiempo[i]-tiempo[numero])
+          start[0]=sfix(-1)
+          #al  sumarlo lo volvemos a poner en -1 para el sigueinte
+      #Si start es -1 no hay nada que sumar
+      @else_
+      def block():
+          NOT[0]=NOT[0]
+
+
+#no cuenta nada porque goteo no vuelve a ser 0, si no que 
+#se acaba y hay que sumar
+print_ln('start es %s',start[0].reveal())
+NOT[0]=NOT[0]+(tiempo[n-1]-tiempo[start[0]])
+
+print_ln('Numero de fallas es: %s', fallas[0].reveal())
+print_ln('Tiempo no operacional es: %s', NOT[0].reveal())
+
+#----------------------------------------------------------------
+
+
+
+MTBF= (TT-NOT)/F
+#Mide la fiabilidad de los elementos no reparables.
+#Corresponde al tiempo medio esperado hasta que tiene lugar el primer fallo
+
+
+#Distribucion de supervivencia parametrica exponencial
+#Si aplicamos esto estamos asumiendo riesgo constante
+lambda=1/MTBF
+
+#funcion hazard constante
+#h(t)=lambda
+
+#funcion hazard acumulada
+#H(t)=lambda*t
+
+#funcion de supervivencia
+#S(t)=e**(-lambda*t)
+
+#funcion de densidad
+#f(t)=lambda*e**(-lambda*t)
+
+
+#Como la exponencial es una funcion sesgada a la derecha, la media no es una buena 
+#medida de tendencia central, en su lugar es mejor utilizar la mediana:
+
+#t=log(2)/lambda
+
+#Esto creo que es cuando tenemos varias maquinas que pueden fallar
+mediana=log(2)/lambda
+
+
+#INTERPRETACION DE LOS RESULTADOS:
+#       exp(-beta)=lambda
+#       http://publicaciones.san.gva.es/publicaciones/documentos/Quaderns_11V.2405-1997.pdf
+#       contraste de Wald: Contrasta la hipotesis nula beta=0
+#           Compara el cuadrado del cociente entre beta y su error estandar con una X² con 1 grado de libertad
+#           Si el resultado es sifnificativo indicará que la tasa de peligro constante es distinta de cero

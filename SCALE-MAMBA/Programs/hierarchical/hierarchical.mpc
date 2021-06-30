@@ -1,0 +1,237 @@
+#Version python:
+#   MantenimienotPredictivo --> hierarchical_clustering.py
+
+
+#---------------HIERARCHICAL CLUSTERING----------------
+#En este caso las observaciones son las variables
+#   1- Al comenzar, cada variable es un cluster.
+#   2- Se identifican los dos clusters que estan mas proximos en la matriz de distancias
+#   3- Se juntan esos dos clusters
+#   4- Se recalculan las distancias haciendo la media, tiene sentido aqui??
+
+
+#Numero de variables
+m=3 
+
+#Creamos una matriz_distancias que calcule las distancias.
+n=10
+X=sfix.Array(n)
+X[0]=sfix(4)
+X[1]=sfix(4.5)
+X[2]=sfix(4)
+X[3]=sfix(7.5)
+X[4]=sfix(7)
+X[5]=sfix(6)
+X[6]=sfix(5)
+X[7]=sfix(5.5)
+X[8]=sfix(5)
+X[9]=sfix(6)
+
+Z=sfix.Array(n)
+Z[0]=sfix(5)
+Z[1]=sfix(5.5)
+Z[2]=sfix(4.8)
+Z[3]=sfix(5.4)
+Z[4]=sfix(4.7)
+Z[5]=sfix(5.6)
+Z[6]=sfix(5.3)
+Z[7]=sfix(5.5)
+Z[8]=sfix(5.2)
+Z[9]=sfix(4.8)
+
+Y=sfix.Array(n)
+for i in range(n):
+  Y[i] = X[i]+sfix(4)
+
+
+X_Y_Z=sfix.Matrix(3,n)
+for i in range(n):
+    X_Y_Z[0][i]=X[i]
+for i in range(n):
+    X_Y_Z[1][i]=Y[i]
+for i in range(n):
+    X_Y_Z[2][i]=Z[i]
+
+
+
+#Funcion para calular la matriz de distancias:
+def matriz_distancias(datos):
+    medias=sfix.Array(m)
+    for i in range(m):
+        suma=sfix(0)
+        for j in range(n):
+            suma=suma+X_Y_Z[i][j]
+        media=suma/sfix(n)
+        medias[i]=media
+        print_ln('\nMedias: %s',medias[i].reveal())
+
+    desviaciones=sfix.Array(m)
+    for i in range(m):
+        suma=sfix(0)
+        for j in range(n):
+            suma=suma+(X_Y_Z[i][j]-medias[i])**2
+        suma=mpc_math.sqrt(suma/sfix(n-1))
+        desviaciones[i]=suma
+        print_ln('\nDesviaciones: %s',desviaciones[i].reveal())
+    
+    covarianzas=sfix.Matrix(m,m)
+    for i in range(m):
+        for j in range(m):
+            suma=0
+            for k in range(n):
+                suma=suma+(X_Y_Z[i][k]-medias[i])*(X_Y_Z[j][k]-medias[j])
+            suma=suma/sfix(n-1)
+            covarianzas[i][j]=suma
+            print_ln('\nCovarianzas: %s',covarianzas[i][j].reveal())
+
+    correlaciones=sfix.Matrix(m,m)
+    for i in range(m):
+        for j in range(i,m):
+            if i==j:
+                correlaciones[i][j]=sfix(1)
+            else:
+                r=covarianzas[i][j]/(desviaciones[i]*desviaciones[j])
+	        correlaciones[i][j]=r
+	        correlaciones[j][i]=r
+            print_ln('\nCoeficiente de correlacion: %s',correlaciones[i][j].reveal())
+
+    matriz_distancias=sfix.Matrix(m,m)
+    for i in range(m):
+        for j in range(i,m):
+	    if i==j:
+	        matriz_distancias[i][j]=1-correlaciones[i][j]
+	    else:
+	        matriz_distancias[i][j]=1-correlaciones[i][j]
+            matriz_distancias[j][i]=1-correlaciones[i][j]
+	    print_ln('\nMatriz distancias: %s', matriz_distancias[i][j].reveal())
+    
+    return matriz_distancias
+
+
+
+#Funcion para hacer el clustering:
+def clustering(datos):
+    #Para comenzar cada variable sera su propio cluster:
+    noclusters=len(datos)
+
+    #La matriz de distancias:
+    distancias = matriz_distancias(datos)
+
+    #Guadamos las variables que forman los cluster en un array:
+    clusters_indices=[]
+    for i in range(noclusters):
+        clusters_indices.append([0])
+    for i in range(noclusters):
+        clusters_indices[i][0]=sfix(i)
+        print_ln('Cluster %s:',i)
+        print_ln('Variable %s:',clusters_indices[i][0].reveal())
+
+    #En el caso de tener x,y,z al principio tendriamos:
+    #clusters_indices=[[0],[1],[2]]
+    
+    #Se busca el maximo de la matriz de distancias y los dos elementos que se van a juntar
+    max=sfix.Array(1) 
+    max[0]=sfix(0)
+    for i in range(len(distancias)):
+        for j in range(len(distancias)):
+            if (distancias[i][j]>max[0]).reveal():
+                max[0]=distancias[i][j]
+                juntar1=sfix(i)
+                juntar2=sfix(j)
+            elif (-distancias[i][j]>max[0]).reveal():
+                max[0]=-distancias[i][j]
+                juntar1=sfix(i)
+                juntar2=sfix(j)
+
+    print_ln('Juntar1 %s',juntar1.reveal())
+    print_ln('Juntar2 %s',juntar2.reveal())
+    print_ln('max: %s',max[0].reveal())
+
+    #DEFINIMOS UN CORTE DE LO QUE CONSIDERAMOS ESTAR RELACIONADOS,EN ESTE CASO 0.6
+    #IGUAL TAMBIEN ES NECESARIO PONER UNA CONDICION DE QUE NOCLUSTERS SEA AL MENOS 2
+    #PARA QUE AL METERSE EN EL WHILE NOCLUSTERS=1. (O LO QUE NOS INTERESE)
+    
+    #En realidad poner el while, el for es solo una prueba
+    while (max[0]>0.6).reveal():
+        #cuantos clusters habia hasta ahora
+        noclusters=len(clusters_indices)
+        # ahora habra un cluster menos
+        noclusters=noclusters-1
+
+        #El numero de elementos que puede haber en cada cluster
+        #Se define como uno en un principio y si hay mas se le aniade a la lista
+
+        clusters_ind_new=[[0]]*noclusters
+
+        for i in range(noclusters):
+            if (sfix(i) ==juntar1).reveal():
+                clusters_ind_new[i][0]=juntar1
+                clusters_ind_new[i].append(juntar2)
+            elif (sfix(i)>=juntar2).reveal():
+                clusters_ind_new[i] = clusters_indices[i+1]
+            else:
+                clusters_ind_new[i]=clusters_indices[i]
+
+    #Simplemente para imprimir  
+    for p in range(noclusters):
+        print_ln('Cluster %s:',p)
+        for elem in clusters_ind_new[p]:
+            print_ln('Variable %s:',elem.reveal())
+    
+    # Para recalcular la matriz de distancias se coge la media de los dos.
+    distancias_nuev=sfixMatrix(noclusters,noclusters)
+    for i in range(noclusters):
+        for j in range(noclusters):
+            if (sfix(i)==juntar1).reveal():
+                if (sfix(j)==juntar1).reveal():
+                    distancias_nuev[i][j] = 0
+                elif (sfix(j)>=juntar2).reveal():
+                    #Juntar 2 ya se ha eliminado por lo que juntamos la siguiente                        media_juntar = (distancias[juntar1][j+1]+ distancias[juntar2][j+1])/2
+                    distancias_nuev[i][j] = media_juntar
+                    distancias_nuev[j][i] = media_juntar
+                else:
+                   media_juntar = (distancias[juntar1][j]+ distancias[juntar2][j])/2
+                   print(distancias[juntar1][j])
+                   distancias_nuev[i][j] = media_juntar
+                   distancias_nuev[j][i] = media_juntar
+            #elif i==juntar2:
+                    #Ya se ha juntado por lo que es como si fuese una linea normal
+                    #actua igual que el else
+            else:
+                if (sfix(j) == juntar1).reveal():
+                    media_juntar=(distancias[i][juntar1]+distancias[i][juntar2])/2
+                    distancias_nuev[i][j]=media_juntar
+                    distancias_nuev[j][i]=media_juntar
+                elif (sfix(j)>=juntar2).reveal():
+                    distancias_nuev[i][j]=distancias[i][j+1]
+                    distancias_nuev[j][i] = distancias[i][j + 1]
+                else:
+                    distancias_nuev[i][j]=distancias[i][j]
+                    distancias_nuev[j][i] = distancias[j][i]
+    print(distancias_nuev)
+    max=sfixArray(1)
+    max[0]=sfix(0)
+    for i in range(len(distancias_nuev)):
+        for j in range(len(distancias_nuev)):
+            if (distancias_nuev[i][j] > max).reveal():
+                max = distancias_nuev[i][j]
+                juntar1 = i
+                juntar2 = j
+            elif (-distancias_nuev[i][j] > max).reveal():
+                max = -distancias[i][j]
+                juntar1 = i
+                juntar2 = j
+                
+    return(clusters_ind_new)
+
+
+
+
+clustering(X_Y_Z)
+
+
+#repasar las comparaciones y escribirlas con el reveal!!
+#comprobar que todo va igual que en python:
+#   MantenimienotPredictivo --> hierarchical_clustering.py
+
+

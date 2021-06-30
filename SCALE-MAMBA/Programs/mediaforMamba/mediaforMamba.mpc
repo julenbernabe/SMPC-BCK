@@ -1,0 +1,32 @@
+sum=sfix(0)
+n1=0
+n2=5
+n3=5
+
+vector1 = sfix.Array(n1)
+vector2 = sfix.Array(n2)
+vector3 = sfix.Array(n3)
+
+
+@for_range(n1)
+def setVector1(i):
+  vector1[i] = sfix.load_sint(sint.get_private_input_from(0))
+
+@for_range(n2)
+def setVector2(i):
+  vector2[i] = sfix.load_sint(sint.get_private_input_from(1))
+
+@for_range(n3)
+def setVector3(i):
+  vector3[i] = sfix.load_sint(sint.get_private_input_from(2))
+
+
+for i in range(n1):
+  sum = sum + vector1[i]
+for i in range(n2):
+  sum = sum + vector2[i]
+for i in range(n3):
+  sum = sum + vector3[i]
+
+media=sum/sfix(n1+n2+n3)
+print_ln('\n\nSOLUCION:\nLa media del conjunto de datos es: %s\n\n', media.reveal())
