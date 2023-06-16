@@ -1,11 +1,13 @@
 import requests
+import os
 
-contractaddr = '0x3Ff035c4d94Bf59FdDeB779e7cC7deFB71f9F639'
+contractaddr = os.popen('cd ../marketplace; truffle networks --network ethereum | grep marketplace').read().split(" ")[-1][:-1]
 
 requests.delete("http://localhost:8060/api/rest/v1/event-filter/" + "newRequest_" + contractaddr)
 requests.delete("http://localhost:8060/api/rest/v1/event-filter/" + "updatedRequest_" + contractaddr)
-requests.delete("http://localhost:8060/api/rest/v1/event-filter/" + "operationThrown_" + contractaddr)
-requests.delete("http://localhost:8060/api/rest/v1/event-filter/" + "operationFinished_" + contractaddr)
+requests.delete("http://localhost:8060/api/rest/v1/event-filter/" + "scientistReady_" + contractaddr)
+requests.delete("http://localhost:8060/api/rest/v1/event-filter/" + "executionFinished_" + contractaddr)
 requests.delete("http://localhost:8060/api/rest/v1/event-filter/" + "playersFilled_" + contractaddr)
-requests.delete("http://localhost:8060/api/rest/v1/event-filter/" + "operationStarted_" + contractaddr)
-requests.delete("http://localhost:8060/api/rest/v1/event-filter/" + "networkReady_" + contractaddr)
+requests.delete("http://localhost:8060/api/rest/v1/event-filter/" + "executionReady_" + contractaddr)
+requests.delete("http://localhost:8060/api/rest/v1/event-filter/" + "executionSuccessful_" + contractaddr)
+requests.delete("http://localhost:8060/api/rest/v1/event-filter/" + "executionFailed_" + contractaddr)

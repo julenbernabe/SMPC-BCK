@@ -1,8 +1,0 @@
-/target
-**/*.rs.bk
-*.dot
-*.aux
-*.log
-*.out
-*.pdf
-*.fdb_latexmk

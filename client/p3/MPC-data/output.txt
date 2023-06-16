@@ -1,0 +1,12 @@
+
+ 
+ 
+ ---------------------------- SOLUTION ---------------------------- 
+ 
+ 
+After pooling the data of the three participants we obtain the following statistics: 
+
+The mean values are: [5.906, 3.024, 3.92933, 1.24533]
+
+
+

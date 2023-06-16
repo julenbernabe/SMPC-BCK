@@ -1,0 +1,18 @@
+import os
+
+ethereum_gateway = os.getenv('ETHEREUM_NODE_URL')
+ipfs_gateway = os.getenv('IPFS_GATEWAY')
+contractAddress = os.getenv('MARKETPLACE')
+tokenAddress = os.getenv('TOKEN')
+IP = os.getenv('IP_ADDRESS')
+CA_file_loc = os.getenv('CA_FILE_LOCATION')
+cert_file_loc = os.getenv('CERT_FILE_LOCATION')
+key_file_loc = os.getenv('KEY_FILE_LOCATION')
+programs_loc = os.getenv('PROGRAMS_LOCATION')
+mpc_data_loc = os.getenv('MPC_DATA_LOCATION')
+input_file_loc = os.getenv('INPUT_FILE_LOCATION')
+output_file_loc = os.getenv('OUTPUT_FILE_LOCATION')
+common_name = os.getenv('COMMON_NAME')
+keystore = os.getenv('KEYSTORE')
+acc_name = os.getenv('ACCOUNT_NAME')
+my_n = str(0)

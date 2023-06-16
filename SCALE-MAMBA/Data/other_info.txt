@@ -1,9 +1,0 @@
-/root/SCALE-MAMBA/Cert-Store/RootCA.crt
-/root/SCALE-MAMBA/Programs/current/current.txt
-/root/SCALE-MAMBA/Programs/current/current.bc
-/root/SCALE-MAMBA/Programs/current/current.sch
-/root/SCALE-MAMBA/Programs/current/current.py
-340282366920938463463374607431768211507
-/root/SCALE-MAMBA/Cert-Store/player0.crt
-/root/SCALE-MAMBA/Cert-Store/player1.crt
-/root/SCALE-MAMBA/Cert-Store/player2.crt
