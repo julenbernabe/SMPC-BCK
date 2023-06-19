@@ -24,7 +24,7 @@ echo ""
 echo "Subscribing eventeum to the contract's events:"
 echo ""
 
-sleep 5
+sleep 10
 cd eventeum-consumer
 python3 events_poster.py
 cd ..

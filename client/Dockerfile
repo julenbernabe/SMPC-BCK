@@ -1,4 +1,8 @@
-FROM python:3.10.3-bullseye
+###########################################
+                # BASE IMAGE
+###########################################
+
+FROM python:3.10.3-bullseye as agent
 
 ENV APP_HOME /app
 ENV MP_SPDZ_HOME $APP_HOME/MP-SPDZ
@@ -69,4 +73,28 @@ RUN make -j8 temi-party.x
 # Honest Majority protocols
 RUN make -j8 malicious-shamir-party.x
 
-ENTRYPOINT ["tail", "-f", "/dev/null"]
+###########################################
+            # SCIENTIST IMAGE
+###########################################
+
+FROM agent as scientist
+
+ENV CLIENT_HOME $APP_HOME/client
+WORKDIR $CLIENT_HOME
+
+COPY ./data-scientist-eth-client .
+
+ENTRYPOINT ["./run_all.sh"]
+
+###########################################
+            # OWNER IMAGE
+###########################################
+
+FROM agent as owner
+
+ENV CLIENT_HOME $APP_HOME/client
+WORKDIR $CLIENT_HOME
+
+COPY ./data-owner-eth-client .
+
+ENTRYPOINT ["./run_all.sh"]

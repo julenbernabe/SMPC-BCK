@@ -7,9 +7,10 @@ echo ""
 echo "###############################"
 echo ""
 echo ""
-echo "Building MPC Agent Docker image"
+echo "Building Marketplace Client Docker image"
 echo ""
 
 cd client
-docker build -t agent .
+docker build -t client:scientist --target scientist .
+docker build -t client:owner --target owner .
 cd ..

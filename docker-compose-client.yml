@@ -11,8 +11,8 @@ networks:
 
 x-common-envs: &common-envs
     ETHEREUM_NODE_URL: http://ethereum:8545
-    MARKETPLACE: '0x75451f859eE0F8CD299E507a7Cc566692aAD4e69'
-    TOKEN: '0x8b013611067770b3f861F742f62Cc8589e0E7509'
+    MARKETPLACE: '0x9EcBdFF51d1d0e41D5a9dC2e38F078ce63C971f4'
+    TOKEN: '0x3DAFf1863c43F37b5022f131E61acF173ABa6d27'
     IPFS_GATEWAY: '/ip4/192.168.130.3/tcp/5001/http'
     KEYSTORE: 'keystore/eth/'
 
@@ -20,14 +20,12 @@ services:
   #################################### SCALE-MAMBA ####################################
 
     p0:
-        image: 'agent:latest'
+        image: 'client:scientist'
         container_name: p0
         tty: true
-        working_dir: /app/client
         ports:
             - 5100-5105:5000-5005
         volumes:
-            - './client/data-scientist-eth-client:/app/client'
             - './client/p0:/app/client/Data'
         environment:
             <<: *common-envs
@@ -46,14 +44,12 @@ services:
                 ipv4_address: 192.168.130.9
         
     p1:
-        image: 'agent:latest'
+        image: 'client:owner'
         container_name: p1
         tty: true
-        working_dir: /app/client
         ports:
             - 5200-5205:5000-5005
         volumes:
-            - './client/data-owner-eth-client:/app/client'
             - './client/p1:/app/client/Data'
         environment:
             <<: *common-envs
@@ -72,14 +68,12 @@ services:
                 ipv4_address: 192.168.130.10
 
     p2:
-        image: 'agent:latest'
+        image: 'client:owner'
         container_name: p2
         tty: true
-        working_dir: /app/client
         ports:
             - 5300-5305:5000-5005
         volumes:
-            - './client/data-owner-eth-client:/app/client'
             - './client/p2:/app/client/Data'
         environment:
             <<: *common-envs
@@ -98,14 +92,12 @@ services:
                 ipv4_address: 192.168.130.11
 
     p3:
-        image: 'agent:latest'
+        image: 'client:owner'
         container_name: p3
         tty: true
-        working_dir: /app/client
         ports:
             - 5400-5405:5000-5005
         volumes:
-            - './client/data-owner-eth-client:/app/client'
             - './client/p3:/app/client/Data'
         environment:
             <<: *common-envs
@@ -124,14 +116,12 @@ services:
                 ipv4_address: 192.168.130.12
 
     p4:
-        image: 'agent:latest'
+        image: 'client:owner'
         container_name: p4
         tty: true
-        working_dir: /app/client
         ports:
             - 5500-5505:5000-5005
         volumes:
-            - './client/data-owner-eth-client:/app/client'
             - './client/p4:/app/client/Data'
         environment:
             <<: *common-envs

@@ -4,7 +4,7 @@ from utils import ledger, returns, wallet
 
 def find_active_progs(w3, contract, last):
     n = 1
-    print('\n---------------------------------\n\tList of programs\n---------------------------------\n\n')
+    print('\n---------------------------------\n\tList of campaigns\n---------------------------------\n\n')
     l2 = []
     if last == 0:
         return l2
@@ -16,7 +16,7 @@ def find_active_progs(w3, contract, last):
                 rep = returns.return_minimum_reputation(w3, contract, n)
                 if my_rep >= rep:
                     l2.append(n)
-                    print("\nIn program",n,": ")
+                    print("\nIn campaign",n,": ")
                     print("\n\t -->", l1[1]," ",l1[2]," ",l1[3])
                     print("\n\t --> Required reputation: ", returns.return_minimum_reputation(w3, contract, n))
                     print("\n\t --> MODL for the request: ", returns.return_MODL(w3, contract, n))

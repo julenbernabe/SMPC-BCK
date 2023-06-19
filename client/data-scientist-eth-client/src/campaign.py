@@ -7,6 +7,22 @@ from config import config
 import sys, os
 
 def new():
+    cname, acct, key = wallet.readAccount()
+    w3 = ledger.connectBlockchain(acct['address'])
+    l = ledger.getContract(w3)
+    Token = ledger.getToken(w3)
+    Contract = l[0]
+    contractAddress = l[1]
+    if returns.return_registered(w3, Contract) == 0:
+        x = input('\n\nYou were not registered in the marketplace. Do you want to register? [y/n]')
+        if x == 'y':
+            reg = Contract.functions.register().build_transaction({
+                'chainId': 1, 'gas': 700000, 'gasPrice': 0,
+                'nonce': w3.eth.get_transaction_count(w3.eth.defaultAccount)
+            })
+            ledger.sign_transaction(w3, reg, key)
+        else:
+            sys.exit()
     programs = os.listdir(config.programs_loc)
     print('\n')
     i = 0
@@ -24,22 +40,6 @@ def new():
     while prog not in programs:
         prog = input('\nProgram "' + prog + '" is not in the list of programs above. Please enter a valid program: ')
     mpcPath = config.programs_loc + prog + '/' + prog + '.mpc'
-    cname, acct, key = wallet.readAccount()
-    w3 = ledger.connectBlockchain(acct['address'])
-    l = ledger.getContract(w3)
-    Token = ledger.getToken(w3)
-    Contract = l[0]
-    contractAddress = l[1]
-    if returns.return_registered(w3, Contract) == 0:
-        x = input('\n\nYou were not registered in the marketplace. Do you want to register? [y/n]')
-        if x == 'y':
-            reg = Contract.functions.register().build_transaction({
-                'chainId': 1, 'gas': 700000, 'gasPrice': 0,
-                'nonce': w3.eth.get_transaction_count(w3.eth.defaultAccount)
-            })
-            ledger.sign_transaction(w3, reg, key)
-        else:
-            sys.exit()
     MODL = int(input('\nWhat is the required MODL (Minimum Overall Data Length)?\n'))
     data_length = int(input('\nWhat is your data length?\n'))
     my_rep = returns.return_reputation(w3, Contract)
